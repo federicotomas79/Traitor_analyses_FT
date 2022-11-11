@@ -2,7 +2,7 @@ library(Momocs)
 library(ggplot2)
 library(sf)
 
-#setwd("XXX") # insert working directory
+#setwd("write here the path to your working directory") # setting the working directory folder
 
 df = read.csv("DiasMorph_v1.csv")  # available at XXXXX
 # head(df)
