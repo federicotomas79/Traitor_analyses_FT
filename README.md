@@ -1,6 +1,6 @@
 # Traitor_analyses
  
-Analyses done with Traitor's measurements (https://github.com/TankredO/traitor).
+Analyses with Traitor's measurements (https://github.com/TankredO/traitor).
 
 ### 3.1_validation.R
  
