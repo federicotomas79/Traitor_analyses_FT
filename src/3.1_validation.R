@@ -15,9 +15,9 @@ df = df[,c(1:10)]
 # validation -------------------------------------------------------------------
 
 # disregarding species with less than 5 reps for size comparison -------------
-sp = table(df$group)
+sp = table(df$image_name)
 notEnough = names(sp)[sp < 5]
-df = df[! (df$group %in% notEnough), ]
+df = df[! (df$image_name %in% notEnough), ]
 
 # removing species with more than one measurement ------------------------------
 # (e.g., with and without specific appendages)
