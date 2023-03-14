@@ -1,4 +1,4 @@
-#devtools::install_github("jinyizju/V.PhyloMaker")
+#devtools::install_github("jinyizju/V.PhyloMaker2")
 #devtools::install_github("YuLab-SMU/ggtree")
 #devtools::install_github("YuLab-SMU/treeio")
 #devtools::install_github("YuLab-SMU/ggtreeExtra")
@@ -15,7 +15,7 @@ library(ape)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_v1.csv")
+df = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
 #names(df)
 
 # reducing size of df. Keepings liner sRGB for analysis and sRGB for plotting.
@@ -129,11 +129,11 @@ traits = setNames(phylo_order$PC1,
 
 # Phylogenetic signal ----------------------------------------------------------
 
-lambda <- phylosig(tree, traits, method = "lambda", test=TRUE)
+lambda <- phylosig(phy, traits, method = "lambda", test=TRUE)
 lambda
 
 ## likelihood ratio test to assess whether the phylogenetic structure fits the Brownian model. Data not shown in paper.
-fitBrownian<-brownie.lite(paintSubTree(tree,tree$edge[1,1],state="1"),traits)
+fitBrownian<-brownie.lite(paintSubTree(phy,phy$edge[1,1],state="1"),traits)
 
 LR<-2*(lambda$logL-fitBrownian$logL1)
 LR
@@ -152,10 +152,10 @@ p = ggtree(tr2, layout = "circular",
     theme(legend.position="none")
 #p
 
-p2 = p %<+% d + geom_tiplab(aes(label=label3), color = "black", 
+p2 = p %<+% d + geom_tiplab(aes(label=label3), color = "black", fontface = 3,
                              size = 1.8, h=-0.1, offset = 10, align = TRUE) 
                             #may need to adjust offset
-#p2
+p2
 
 p3 = 
     p2 +
@@ -165,7 +165,7 @@ p3 =
     #size = 5
     pwidth = 0.1,
     width = 10,
-    offset = -0.88 # 0.12 # offset may need to be adjusted 
+    offset = 0.12 # -0.88 (try this value for mac) offset may need to be adjusted  
   ) +
   scale_fill_identity() +
   new_scale_fill()
@@ -180,24 +180,42 @@ dev.off()
 
 # plot tree with PC1 -----------------------------------------------------------
 
-pr = ggtree(tr2, layout = "rectangular", 
+dd = phylo_order
+row.names(dd) = dd$species
+
+pr = ggtree(tree, layout = "rectangular", 
             ladderize = TRUE, size=0.6) + 
-  theme(legend.position="none") + theme(plot.margin = margin(.3, .3, .3, .3, "cm"))
+  theme(legend.position="none") #+ theme(plot.margin = margin(.3, .3, .3, .3, "cm"))
 
-pr2 = 
-pr %<+% d + geom_tiplab(aes(label=""), color = "grey80", 
-                             offset = 53, align = TRUE) +
-   geom_fruit(
-      geom = geom_bar,
-      mapping = aes(y = species, x = PC1),
-      fill = "firebrick4",
-      orientation = "y",
-      stat = "identity",
-      pwidth = 0.9,
-      offset = -0.65 # 0.9 # offset may need to be adjusted 
-     ) 
+pr2 <- pr + 
+  geom_facet(panel = "PC1", 
+               data = dd, geom = geom_bar, fill = "grey25",
+               stat = "identity", orientation = 'y',
+               mapping = aes(x = PC1)) +
+  theme_tree2() +
+  theme(axis.text.x = element_text(size = 18), strip.text = element_blank())
 
-pdf(file = "colour_phylo_PC1.pdf", width = 10, height = 8)
+
 pr2
+
+# Create a data frame for the labels
+d <- data.frame(.panel = c('Tree', 'PC1'), 
+                lab = c("", "PC1 score"), 
+                x=c(2.5,0), y=-27)
+
+# Add text labels to the plot
+pr3 <- pr2 + scale_y_continuous(limits=c(0, 195), 
+                                expand=c(0,0), 
+                                oob=function(x, ...) x) +
+  geom_text(aes(x = x, y = y, label = lab), 
+            data = d, size = 5.8, hjust = 0.5, vjust = -3.1) + 
+  coord_cartesian(clip='off')  + 
+  theme(plot.margin=margin(0, 10, 25, 6)) 
+
+pr3
+
+# Save the plot to a PDF file
+pdf(file = "colour_phylo_PC1.pdf", width = 9, height = 8)
+pr3
 dev.off()
 

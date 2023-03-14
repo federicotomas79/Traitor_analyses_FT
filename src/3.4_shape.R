@@ -2,24 +2,25 @@ library(Momocs)
 library(ggplot2)
 library(sf)
 
-#setwd("write here the path to your working directory") # setting the working directory folder
+#setwd("XXX") # insert working directory
 
-df = read.csv("DiasMorph_v1.csv")  # available at XXXXX
-# head(df)
+data = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
+# head(data)
 
 # selecting only Carex spp.
-df = subset(df, genus == "Carex")
+data = subset(data, genus == "Carex")
 
 # randomly selecting only taxa with more than 30 seeds
-number.samples <- as.data.frame(tapply(df$scientificName, df$scientificName, length))
+number.samples <- as.data.frame(tapply(data$scientificName, data$scientificName, length))
 colnames(number.samples)[1] <- 'count'
 number.samples$scientificName <- row.names(number.samples)
 not_enough = number.samples[number.samples$count < 30, ]
 Slevels = levels(as.factor(not_enough$scientificName))
-df = df[! (df$scientificName %in% Slevels), ]
+data = data[! (data$scientificName %in% Slevels), ]
 
 # Number of taxa to be included in the analysis
-length(levels(as.factor(df$scientificName)))
+length(levels(as.factor(data$scientificName)))
+
 
 # Randomly downsampling taxa with more than 30 seeds to obtain a balanced dataset
 FUN <- function(x, n) {
@@ -27,14 +28,13 @@ FUN <- function(x, n) {
   x[x %in% sample(x, n)]
 }
 
-set.seed(8)
-df <- df[unlist(lapply(split(1:nrow(df), df$scientificName),
+set.seed(28) #windows
+df <- data[unlist(lapply(split(1:nrow(data), data$scientificName),
                        FUN, n = 30)), ]
-# final dataset
 
 
 # format dataset for Momocs ----------------------------------------------------
-names(df)
+names(df) # final dataset
 
 # converting df into a list of matrices of (x,y) coordinates
 coord_list = list()
@@ -43,14 +43,15 @@ for (i in 1:length(df[,1])){
     as.matrix(df[i,c(37:136)]), # select columns from x_0 to y_49
     dim = c(2,50)
   ))
-  names(coord_list)[i] <- paste(df[i,"image_name"])
+  names(coord_list)[i] <- paste(df[i,"sample_name"])
 }
 
 # data.frame of variables specifying the grouping structure
 fac=list()
 fac$sp <- df$scientificName
-fac$sample <- df$image_name
+fac$sample <- df$sample_name
 fac$sp_code <- df$group
+fac$image_name <- df$image_name
 
 # import coordinates into momocs 
 out_df = Out(coord_list, fac=fac)
@@ -67,10 +68,13 @@ out_align <- out_df %>%
 
 ## performing Elliptical Fourier Transforms followed by PCA on the coefficients
 pca_align <- out_align %>% efourier(norm=FALSE) %>% PCA(scale. = FALSE, center = TRUE)
-plot_PCA(pca_align, axes = c(1, 2), labelpoints = TRUE)  #ploting labels to identify any outliers
 
-# removing outlier to improve outcome of the alignment
-out_align <- filter(out_align, !sample %in% c("img_0208_6","img_0208_40"))
+par(mfrow=c(1,1))
+par(mar=c(0,0,0,0))
+plot_PCA(pca_align, axes = c(1, 2), labelpoints = TRUE)  # plotting labels to identify any outliers
+
+# removing outlier - important to improve outcome of alignment
+out_align <- filter(out_align, !sample %in% c("img_0208_40","img_0208_41"))
 
 # use PCA to separate seeds with mirrored alignment
 pca_align <- out_align %>% efourier(norm=FALSE) %>% PCA(scale. = FALSE, center = TRUE)
@@ -99,6 +103,8 @@ res_pca = out_fin %>%
 
 par(mfrow = c(1,1))
 plot_PCA(res_pca, axes = c(1, 2), chull = FALSE)
+
+sum(res_pca$eig[1:3]) #~0.90
 
 
 # hierarchical clustering ------------------------------------------------------
@@ -142,8 +148,6 @@ rep_shape = cbind(
 
 # plot the shapes closest to the center of each cluster ------------------------
 
-col_val = c("#E69F00", "#009E73", "#0072B2", "#D55E00", "#58C9FB", "#B4485C", "#75326B", "#37778C")
-
 # rotate shapes so they are plotted in upright position
 plot_shapes <- out_fin %>%
   coo_rotate(3*pi/2) 
@@ -154,9 +158,9 @@ for (i in 1:length(rep_shape$nearest_point)){
   rep_list[[i]] = filter(plot_shapes, sample == rep_shape[i,5])
 }
 
-
-pdf(file = "cluster_representatives.pdf", width = 1.5, height = 12) 
-
+dev.off()
+pdf(file = "shape_cluster_representatives.pdf", width = 1.5, height = 12) 
+col_val = c("#0072B2", "#009E73","#E69F00","#58C9FB","#B4485C","#D55E00","#75326B","#37778C")
 par(pty="s")
 par(mfrow=c(1,1))
 len = length(rep_shape$cluster)
@@ -172,24 +176,6 @@ for (i in 1:length(rep_shape$nearest_point)){
 
 dev.off()
 
-# panels to visualise all shapes within each cluster ---------------------------
-
-dev.off()
-pdf(file = "shape_cluster_representatives.pdf", width = 15, height = 8) 
-
-par(mar = c(0, 0, 0, 0))
-par(mfrow = c(1, 1))
-for (i in 1:length(rep_shape$cluster)){
-  p = plot_shapes  %>%
-    filter(plot_shapes[[2]]$hc == i)
-  panel(p, #cols = as.factor(p[[2]]$sp)
-        c(30,50),
-        col = col_val[i]
-  )
-}
-
-dev.off()
-
 
 # a nicer PCA plot in ggplot2 --------------------------------------------------
 
@@ -199,11 +185,14 @@ cols = as.factor(hc_cl)
 pdf(file = "shape_pca_clusters.pdf", width = 6.5, height = 4) 
 
 ggplot() +
+  #geom_hline(yintercept = 0, color="grey30", linewidth=0.4) +
+  #geom_vline(xintercept = 0, color="grey30", linewidth=0.4) +
   geom_point(data = to_plot, aes(x = PC1, y = PC2, color = cols), 
              size = 2, alpha = 0.3) +
   geom_point(data = rep_shape, aes(x = PC1, y = PC2, color = levels(cols)),
              size = 7, shape = 4, stroke = 2.5) +
   scale_color_manual(name=" ", values=c(col_val), labels = levels(cols)) +
+  ylim(-0.15, 0.07) +
   ylab(paste("PC2  (",round(res_pca$eig[2]*100, digits = 1),"%)", sep="")) +
   xlab(paste("PC1  (",round(res_pca$eig[1]*100, digits = 1),"%)", sep="")) +
   theme_bw(base_size=12) +
@@ -213,7 +202,7 @@ dev.off()
 
 # shape breadth ---------------------------------------------------------------
 
-levels(as.factor(res_pca$fac$sp_code))
+levels(as.factor(res_pca$fac$sp))
 examples = filter(res_pca, res_pca$fac$sp == "Carex pauciflora" |
                     res_pca$fac$sp == "Carex pulicaris" |
                     res_pca$fac$sp == "Carex atrata subsp. aterrima" |
@@ -227,7 +216,7 @@ sp_example = as.factor(examples$fac$sp)
 
 ex_df = as.data.frame(examples$x[,1:2])
 ex_df$sp = examples$fac$sp
-ex_df$sp_code = examples$fac$sp_code
+ex_df$sp_code = examples$fac$image_name
 
 sum_ex_df = data.frame(PC1 = with(ex_df, tapply(PC1, sp, mean)),
                        PC2 = with(ex_df, tapply(PC2, sp, mean))
@@ -238,20 +227,42 @@ sum_ex_df$sp = rownames(sum_ex_df)
 pdf(file = "shape_breadth.pdf", width = 6.5, height = 4) 
 
 ggplot() +
+  #geom_hline(yintercept = 0, color="grey30", linewidth=0.4) +
+  #geom_vline(xintercept = 0, color="grey30", linewidth=0.4) +
   geom_point(data = to_plot, aes(x = PC1, y = PC2, color = cols), 
              size = 2, alpha = 0.5) +
   scale_color_manual(name=" ", values=col_val, labels = levels(cols)) +
   stat_ellipse(data = as.data.frame(examples$x), 
                aes(x = PC1, y = PC2, group = sp_example), 
                size = 0.4, col = "grey48", level = 0.95) +
-  geom_text(data = sum_ex_df[-1,], aes(x = PC1, y = PC2, label = sp), 
+  geom_text(data = sum_ex_df[-1,], 
+            aes(x = PC1, y = PC2, label = sp, fontface=3), 
             size = 3.5) +
-  geom_text(data = sum_ex_df[1,], aes(x = PC1, y = PC2, label = sp), 
+  geom_text(data = sum_ex_df[1,],
+            aes(x = PC1, y = PC2, label = sp, fontface=3), 
             size = 3.5, vjust = -3.5, hjust = 0.6) +
-  ylim(-0.15, 0.10) +
+  ylim(-0.15, 0.07) +
   ylab(paste("PC2  (",round(res_pca$eig[2]*100, digits = 1),"%)", sep="")) +
   xlab(paste("PC1  (",round(res_pca$eig[1]*100, digits = 1),"%)", sep="")) +
   theme_bw(base_size=12) +
   theme(legend.position="none")
+
+dev.off()
+
+# panels to visualise all shapes within each cluster ---------------------------
+
+#dev.off()
+pdf(file = "shape_clusters_outlines.pdf", width = 15, height = 8) 
+
+par(mar = c(0, 0, 0, 0))
+par(mfrow = c(1, 1))
+for (i in 1:length(rep_shape$cluster)){
+  p = plot_shapes  %>%
+    filter(plot_shapes[[2]]$hc == i)
+  panel(p, #cols = as.factor(p[[2]]$sp)
+        c(30,50),
+        col = col_val[i]
+  )
+}
 
 dev.off()

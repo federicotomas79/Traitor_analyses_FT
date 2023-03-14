@@ -1,4 +1,4 @@
-# devtools::install_github("cmartin/ggConvexHull")
+#devtools::install_github("cmartin/ggConvexHull")
 library(ggplot2)
 library(gridExtra)
 library(factoextra)
@@ -6,7 +6,7 @@ library(ggConvexHull)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_v1.csv")  # available at XXXXX
+df = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
 # head(df)
 
 names(df)
@@ -25,8 +25,8 @@ df_taxa = subset(df, scientificName == "Fragaria vesca")
 #df_taxa = subset(df, scientificName == "Carex mucronata") #another interesting example of multicoloured seeds
 #rm(df)
 
-df_col_0 = df_taxa[,c('image_name', 'scientificName', 'rgb_0_r', 'rgb_0_g', 'rgb_0_b', 'rgb_0_frac')]
-df_col_1 = df_taxa[,c('image_name', 'scientificName', 'rgb_1_r', 'rgb_1_g', 'rgb_1_b', 'rgb_1_frac')]
+df_col_0 = df_taxa[,c('sample_name', 'scientificName', 'rgb_0_r', 'rgb_0_g', 'rgb_0_b', 'rgb_0_frac')]
+df_col_1 = df_taxa[,c('sample_name', 'scientificName', 'rgb_1_r', 'rgb_1_g', 'rgb_1_b', 'rgb_1_frac')]
 df_col_0$col_group = 0
 df_col_1$col_group = 1
 
@@ -45,7 +45,7 @@ colnames(df_col_1)[6] <- paste("rgb_0_frac")
 
 df_col = rbind.data.frame(df_col_0, df_col_1)
 
-colnames(df_col) = c("image_name", "scientificName", "rgb_r", "rgb_g", "rgb_b", "rgb_frac", "col_group", "sum_RGB")
+colnames(df_col) = c("sample_name", "scientificName", "rgb_r", "rgb_g", "rgb_b", "rgb_frac", "col_group", "sum_RGB")
 str(df_col)
 
 # convert sRGB to Lab
@@ -54,7 +54,7 @@ df_col = cbind(df_col, Lab)
 
 # we want to keep the two colours grouped so the colour combination (and not individual colour) is considered on the PCA
 df_col_w = reshape(df_col, 
-                    idvar = c("image_name", "scientificName"),     
+                    idvar = c("sample_name", "scientificName"),     
                     timevar = "sum_RGB",
                     direction='wide')
 
@@ -88,7 +88,8 @@ plot(1:15, wss, type = "b",
      xlab = "Number of Clusters",
      ylab = "Within groups sum of squares")
 
-set.seed(100)
+set.seed(100) # value for mac gives identical figure as in results folder. 
+              # Try set.seed(1) in Windows for similar result.
 K = kmeans(df_col_w[,c("L.0" ,"a.0", "b.0", "L.1" ,"a.1", "b.1")], 4) # for Fragaria vesca
 #K = kmeans(df_col_w[,c("L.0" ,"a.0", "b.0", "L.1" ,"a.1", "b.1")], 3) # for Carex mucronata
 

@@ -5,19 +5,36 @@ library(gridExtra)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_v1.csv") # available at XXXXX
+df = read.csv("DiasMorph_quantitative_traits.csv") # available at XXXXX
 
 #names(df)
 
 # reducing size of df. If working with a different version of DiasMorph, make sure it has identifying columns and length and width measurements
 df = df[,c(1:10)] 
 
+# overview of dataset
+##samples per taxon
+sp_hist = as.data.frame(table(df$scientificName))
+hist(sp_hist$Freq, breaks=50)
+length(sp_hist$Freq[sp_hist$Freq >170])
+sp_hist$Freq2 <- ifelse(sp_hist$Freq > 170, 173, sp_hist$Freq) #for histogram plot only
+
+#pdf(file = "histogram.pdf", width = 6.2, height = 4)
+ggplot(sp_hist, aes(x=Freq2)) +
+  geom_histogram(binwidth=5, color="white", alpha=0.9, boundary=0) +
+  scale_x_continuous(breaks = seq(0, 175, by = 10), labels=c(seq(0,160, by=10), "170+")) +
+  xlab("Number of sampled diaspores") +
+  ylab("Number of taxa") +
+  theme_bw(base_size=12) +
+  theme(axis.text.x=element_text(hjust=0))
+#dev.off()
+
 # validation -------------------------------------------------------------------
 
 # disregarding species with less than 5 reps for size comparison -------------
-sp = table(df$group)
+sp = table(df$image_name)
 notEnough = names(sp)[sp < 5]
-df = df[! (df$group %in% notEnough), ]
+df = df[! (df$image_name %in% notEnough), ]
 
 # removing species with more than one measurement ------------------------------
 # (e.g., with and without specific appendages)
@@ -27,6 +44,8 @@ id_df = unique(df[,c(3:8)])
 df_n_count = table(id_df$scientificName)
 two_states = names(df_n_count)[df_n_count > 1]
 df <- df[! (df$scientificName %in% two_states), ]
+
+length(df$scientificName)
 
 # summary of DiasMorph (Traitor) measurements ----------------------------------
 names(df)
@@ -39,8 +58,7 @@ print(traitor_sum)
 
 # manual measurements ----------------------------------------------------------
 
-manual = read.csv("manual_measurements.csv") # available on data folder on GitHub and as supplementary material
-
+manual = read.csv("manual_measurements.csv") # see paper's supplementary material
 names(manual)
 
 # merge manual and Traitor datasets --------------------------------------------
@@ -62,21 +80,21 @@ ccc_wid = CCC(data$manual_width, data$traitor_width, ci = "z-transform", conf.le
 ccc_wid$rho.c
 
 # plot results -----------------------------------------------------------------
-# Validation figure
 
 g1 = 
 ggplot(data = data) + 
   geom_point(aes(x=manual_length , y = traitor_length), colour = "#0277BD", size = 1.2, alpha = 0.7) +
 #  geom_errorbar(aes(x = manual_length, ymin = traitor_length - traitor_length_sd, ymax = traitor_length + traitor_length_sd), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for Traitor's measurements
 #geom_errorbar(aes(y = traitor_length, xmin = manual_length - sd_manual_length, xmax = manual_length + sd_manual_length), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for manual measurements
- geom_abline(intercept = 0, slope = 1, colour = "black", size =0.5, linetype=5) +
-  geom_vline(xintercept = 10, lwd=0.8, colour="grey80", linetype=3) +
+  geom_abline(intercept = 0, slope = 1, colour = "black", linewidth=0.5, linetype=5) +
+  geom_vline(xintercept = 10, linewidth=0.8, colour="grey80", linetype=3) +
   ylab(paste("length Traitor (mm)")) +
   xlab(paste("length manual (mm)")) +
   annotate(geom = "text", label = "a", x = 1, y = 29, size = 5) +
+  annotate(geom = "text", label = "rho==0.979", parse = TRUE, x = 23, y = 7, size = 5, hjust = 0) +
   theme_bw(base_size=12) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
-#g1
+g1
 
 g2 = 
   ggplot(data = data) + 
@@ -87,10 +105,11 @@ g2 =
   geom_vline(xintercept = 5, lwd=0.8, colour="grey80", linetype=3) +
   ylab(paste("width Traitor (mm)")) +
   xlab(paste("width manual (mm)")) +
-  annotate(geom = "text", label = "c", x = 0.7, y = 21, size = 5) +
+  annotate(geom = "text", label = "c", x = 0.65, y = 21.5, size = 5) +
+  annotate(geom = "text", label = "rho==0.984", parse = TRUE, x = 17, y = 5, size = 5, hjust = 0) +
   theme_bw(base_size=12) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
-#g2
+g2
 
 g3 = 
 ggplot(data = data) + 
@@ -120,3 +139,10 @@ pdf(file = "validation.pdf", width = 8, height = 6)
 grid.arrange(arrangeGrob(g1,g3,g2,g4, as.table= TRUE, ncol=2, nrow=2, heights=c(5,5), widths=c(6.5,4.5)))
 dev.off()
 
+# genus and family ------------------------------
+names(data)
+taxa_fin = unique(data[,c(1,4,5)])
+length(unique(taxa_fin$genus))
+length(unique(taxa_fin$family))
+
+taxa_fin %>% count(family, sort = TRUE)

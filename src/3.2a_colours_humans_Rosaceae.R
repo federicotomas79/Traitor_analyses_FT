@@ -2,7 +2,7 @@ library(ggplot2)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_v1.csv")  # available at XXXXX
+df = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
 # head(df)
 
 names(df)
@@ -45,7 +45,7 @@ ggplot(fam_med_col, aes(y = row.names(fam_med_col), fill = rgb(R, G, B))) +
   scale_fill_identity() +
   xlab("Median colour") +
   ylab("") +
-  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.title.x = element_text(size=8), axis.ticks = element_blank(), axis.text.y = element_text(size=6), panel.background = element_rect(fill = "black"))
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.title.x = element_text(size=8), axis.ticks = element_blank(), axis.text.y = element_text(size=6, face = "italic"), panel.background = element_rect(fill = "black"))
 #dev.off()
 
 # add colour min and max range -------------------------------------------------
@@ -96,7 +96,7 @@ ggplot(fam_cols, aes(y = scientificName, fill = rgb(R, G, B))) +
   facet_grid(.~type) +
    xlab("") +
   ylab("") +
-  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8, face = "italic"), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
 #dev.off()
 
 ## DOMINANT COLOURS ------------------------------------------------------------
@@ -159,7 +159,7 @@ ggplot(df_dom_cols, aes(y = scientificName, fill = rgb(R, G, B))) +
   facet_grid(.~type) +
   xlab("") +
   ylab("") +
-  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8, face = "italic"), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
 #dev.off()
 
 # visualise dominant colours with percentage area cover
@@ -172,7 +172,7 @@ ggplot(df_dom_cols, aes(y = frac*100, x = scientificName, fill = rgb(R, G, B))) 
   ylab("Area cover of dominant colours (%)") +
   scale_y_continuous(limits = c(0, 101), breaks = c(0, 25, 50, 75, 100)) +
   coord_flip() +
-  theme(legend.position="none", panel.grid = element_blank(), axis.text.y = element_text(size=6),  axis.text.x = element_text(size=6), axis.ticks.y = element_blank(), panel.background = element_rect(fill = "black"), strip.background =element_blank(), axis.title.x = element_text(size=6))
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.y = element_text(size=6, face = "italic"),  axis.text.x = element_text(size=6), axis.ticks.y = element_blank(), panel.background = element_rect(fill = "black"), strip.background =element_blank(), axis.title.x = element_text(size=6))
 #dev.off()
 
 # plot median, min, max, colour 1 and colour 2 ---------------------------------
@@ -195,6 +195,29 @@ ggplot(fam_all_cols, aes(y = scientificName, fill = rgb(R, G, B))) +
   facet_grid(.~type) +
   xlab("") +
   ylab("") +
-  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8, face = "italic"), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
 dev.off()
 
+# plot all colours with HEX code
+#pdf(file = "colour_humans_Rosaceae_HEX.pdf", width = 5.5, height = 9) 
+ggplot(fam_all_cols, aes(y = scientificName, fill = rgb(R, G, B))) +
+  geom_bar(color = "black") +
+  scale_y_discrete(limits = rev) +
+  scale_fill_identity() +
+  facet_grid(.~type) +
+  geom_text(aes(y = scientificName, x = 1, label = rgb(R,G,B)), size = 1.5, col = "white", position = position_stack(), hjust = 1.3) +
+  xlab("") +
+  ylab("") +
+  theme(legend.position="none", panel.grid = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank(), axis.text.y = element_text(size = 8, face = "italic"), panel.background = element_rect(fill = "black"), strip.background =element_blank(), strip.text = element_text(size = 8), panel.spacing = unit(0, "lines"))
+#dev.off()
+
+# Table with HEX codes
+fam_all_cols$hex = with(fam_all_cols, rgb(R,G,B))
+t_hex = reshape(fam_all_cols[,c(1,2,6)], 
+                   idvar = "scientificName",     
+                   timevar = "type",
+                   direction='wide')
+
+t_hex = t_hex[,c(1,6,4,5,3,2)]
+colnames(t_hex)
+write.csv(t_hex, "colour_humans_Rosaceae_hex_table.csv", row.names = FALSE)
