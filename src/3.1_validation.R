@@ -83,11 +83,14 @@ ccc_wid$rho.c
 
 g1 = 
 ggplot(data = data) + 
+  geom_segment(aes(x=-1.3, y=10, xend=10, yend=10), linewidth=0.8, colour="grey70", linetype=3) +
+  geom_segment(aes(y=-1, x=10, xend=10, yend=10), linewidth=0.8, colour="grey70", linetype=3) +
   geom_point(aes(x=manual_length , y = traitor_length), colour = "#0277BD", size = 1.2, alpha = 0.7) +
 #  geom_errorbar(aes(x = manual_length, ymin = traitor_length - traitor_length_sd, ymax = traitor_length + traitor_length_sd), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for Traitor's measurements
 #geom_errorbar(aes(y = traitor_length, xmin = manual_length - sd_manual_length, xmax = manual_length + sd_manual_length), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for manual measurements
   geom_abline(intercept = 0, slope = 1, colour = "black", linewidth=0.5, linetype=5) +
-  geom_vline(xintercept = 10, linewidth=0.8, colour="grey80", linetype=3) +
+  scale_y_continuous(limits=c(-1,31.5),expand = c(0, 0)) +
+  scale_x_continuous(limits=c(-1.3,33.3),expand = c(0, 0)) +
   ylab(paste("length Traitor (mm)")) +
   xlab(paste("length manual (mm)")) +
   annotate(geom = "text", label = "a", x = 1, y = 29, size = 5) +
@@ -98,11 +101,14 @@ g1
 
 g2 = 
   ggplot(data = data) + 
+  geom_segment(aes(x=-1, y=5, xend=5, yend=5), linewidth=0.8, colour="grey70", linetype=3) +
+  geom_segment(aes(y=-0.9, x=5, xend=5, yend=5), linewidth=0.8, colour="grey70", linetype=3) +
   geom_point(aes(x=manual_width , y = traitor_width), colour = "#0277BD", size = 1.2, alpha = 0.7) + 
 #  geom_errorbar(aes(x = manual_width, ymin = traitor_width - traitor_width_sd, ymax = traitor_width + traitor_width_sd), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for Traitor's measurements
 #geom_errorbar(aes(y = traitor_width, xmin = manual_width - sd_manual_width, xmax = manual_width + sd_manual_width), width = 0, alpha = 0.7, colour = "#0277BD", size =0.3) + # add error bar with sd for manual measurements
   geom_abline(intercept = 0, slope = 1, colour = "black", size =0.5, linetype=5) +
-  geom_vline(xintercept = 5, lwd=0.8, colour="grey80", linetype=3) +
+  scale_y_continuous(limits=c(-0.9,23.7),expand = c(0, 0)) +
+  scale_x_continuous(limits=c(-1.1,24.7),expand = c(0, 0)) +
   ylab(paste("width Traitor (mm)")) +
   xlab(paste("width manual (mm)")) +
   annotate(geom = "text", label = "c", x = 0.65, y = 21.5, size = 5) +
