@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/563403547.svg)](https://zenodo.org/badge/latestdoi/563403547)
+
 # Traitor_analyses
  
 From paper:
