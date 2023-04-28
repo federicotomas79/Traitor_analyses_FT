@@ -4,7 +4,7 @@ library(sf)
 
 #setwd("XXX") # insert working directory
 
-data = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
+data = read.csv("DiasMorph_quantitative_traits.csv")  # available at https://doi.org/10.6084/m9.figshare.21206507.v3
 # head(data)
 
 # selecting only Carex spp.
