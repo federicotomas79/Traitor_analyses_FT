@@ -5,7 +5,7 @@ library(gridExtra)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_quantitative_traits.csv") # available at XXXXX
+df = read.csv("DiasMorph_quantitative_traits.csv") # available at https://doi.org/10.6084/m9.figshare.21206507.v3
 
 #names(df)
 
@@ -58,7 +58,7 @@ print(traitor_sum)
 
 # manual measurements ----------------------------------------------------------
 
-manual = read.csv("manual_measurements.csv") # see paper's supplementary material
+manual = read.csv("manual_measurements.csv") # available at https://doi.org/10.6084/m9.figshare.22272535 (Dayrell et al. 2023 - supplementary material)
 names(manual)
 
 # merge manual and Traitor datasets --------------------------------------------
