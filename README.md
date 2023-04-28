@@ -1,10 +1,16 @@
 # Traitor_analyses
  
+From paper:
+Dayrell RLC, Ott T, Horrocks T, Poschlod P (2023) Automated extraction of seed morphological traits from images. Methods in Ecology & Evolution.
+
 Analyses with Traitor's measurements (https://github.com/TankredO/traitor).
+
+We used Traitor to extract seed traits from the DiasMorph image dataset (https://doi.org/10.6084/m9.figshare.21206507).
+https://doi.org/10.22541/au.167935473.32803184/v1
 
 ### 3.1_validation.R
  
-We used Traitor to extract seed traits of 1,230 taxa from the DiasMorph image dataset. We compared the length and width values extracted by Traitor with manual measurements (manual_measurements.csv in data folder).
+We compared the length and width values extracted by Traitor with manual measurements (manual_measurements.csv at https://doi.org/10.6084/m9.figshare.22272535).
 
 
 ### 3.2a_colours_humans_Rosaceae.R
