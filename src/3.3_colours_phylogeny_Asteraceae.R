@@ -15,7 +15,7 @@ library(ape)
 
 #setwd("write here the path to your working directory") # setting the working directory folder
 
-df = read.csv("DiasMorph_quantitative_traits.csv")  # available at XXXXX
+df = read.csv("DiasMorph_quantitative_traits.csv")  # available at https://doi.org/10.6084/m9.figshare.21206507.v3
 #names(df)
 
 # reducing size of df. Keepings liner sRGB for analysis and sRGB for plotting.
