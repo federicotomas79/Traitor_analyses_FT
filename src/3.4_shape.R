@@ -10,7 +10,7 @@ data = read.csv("DiasMorph_quantitative_traits.csv")  # available at https://doi
 # selecting only Carex spp.
 data = subset(data, genus == "Carex")
 
-# randomly selecting only taxa with more than 30 seeds
+# selecting only taxa with more than 30 seeds
 number.samples <- as.data.frame(tapply(data$scientificName, data$scientificName, length))
 colnames(number.samples)[1] <- 'count'
 number.samples$scientificName <- row.names(number.samples)
