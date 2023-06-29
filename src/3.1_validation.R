@@ -1,9 +1,12 @@
+#Fede version
+#29 June 2023
+
 library(tidyverse)
 library(DescTools)
 library(ggplot2)
 library(gridExtra)
 
-#setwd("write here the path to your working directory") # setting the working directory folder
+setwd("C:/Users/TOMASETTOF/OneDrive - AgResearch/Funding Applications/SFFF 2022/Data Analysis - Traitor/21206507") # setting the working directory folder
 
 df = read.csv("DiasMorph_quantitative_traits.csv") # available at https://doi.org/10.6084/m9.figshare.21206507.v3
 
@@ -58,7 +61,7 @@ print(traitor_sum)
 
 # manual measurements ----------------------------------------------------------
 
-manual = read.csv("manual_measurements.csv") # available at https://doi.org/10.6084/m9.figshare.22272535 (Dayrell et al. 2023 - supplementary material)
+manual = read.csv("C:/Users/TOMASETTOF/OneDrive - AgResearch/Funding Applications/SFFF 2022/Data Analysis - Traitor/22272535/manual_measurements.csv") # available at https://doi.org/10.6084/m9.figshare.22272535 (Dayrell et al. 2023 - supplementary material)
 names(manual)
 
 # merge manual and Traitor datasets --------------------------------------------
