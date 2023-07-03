@@ -1,8 +1,11 @@
-#devtools::install_github("jinyizju/V.PhyloMaker2")
-#devtools::install_github("YuLab-SMU/ggtree")
-#devtools::install_github("YuLab-SMU/treeio")
-#devtools::install_github("YuLab-SMU/ggtreeExtra")
-#devtools::install_github("YuLab-SMU/TDbook")
+#Fede version
+#4 June 2023
+
+# devtools::install_github("jinyizju/V.PhyloMaker2")
+# devtools::install_github("YuLab-SMU/ggtree")
+# devtools::install_github("YuLab-SMU/treeio")
+# devtools::install_github("YuLab-SMU/ggtreeExtra")
+# devtools::install_github("YuLab-SMU/TDbook")
 suppressPackageStartupMessages(library("V.PhyloMaker2")) # load the package
 library(ggtree)
 library(treeio)
